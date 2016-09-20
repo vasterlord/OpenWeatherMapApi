@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import ivanrudyk.com.open_weather_api.helpers.FirebaseHelper;
 import ivanrudyk.com.open_weather_api.iterator.fragment.NavigationDraverIterator;
 import ivanrudyk.com.open_weather_api.iterator.fragment.NavigationDraverIteratorImlement;
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.ModelUser;
 import ivanrudyk.com.open_weather_api.ui.fragment.NavigationDraverView;
 
@@ -87,6 +88,7 @@ public class NavigationDraverPresenterImplement implements NavigatonDraverPresen
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            FavoriteLocationWeather.listLocation = FirebaseHelper.modelLocation.getLocation();
             draverView.hideProgress(parametrProgress);
             draverView.setUpFragment();
             draverView.setDialogClosed(parametrProgress);

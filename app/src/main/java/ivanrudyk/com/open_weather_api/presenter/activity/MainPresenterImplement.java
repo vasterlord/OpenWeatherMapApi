@@ -221,13 +221,13 @@ public class MainPresenterImplement implements MainPresenter, MainIterator.OnMai
                         e.printStackTrace();
                     }
                 } while (FirebaseHelper.photoDownload == null || FirebaseHelper.modelUser == null);
-                do {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }while (FirebaseHelper.modelUser.getUserName().length() < 1);
+//                do {
+//                    try {
+//                        Thread.sleep(50);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }while (FirebaseHelper.modelUser.getUserName().length() < 1);
                 firebaseHelper.retriveDataLocation(FirebaseHelper.modelUser.getUserName(), uid);
                 do {
                     try {

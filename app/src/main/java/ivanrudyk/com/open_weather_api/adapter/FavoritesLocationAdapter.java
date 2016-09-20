@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class FavoritesLocationAdapter extends BaseAdapter{
             convertView = LayoutInflater.from(context).inflate(R.layout.list_location_item, null);
             holder = new ViewHolder();
             holder.tvLocation = (TextView) convertView.findViewById(R.id.tvListLocation);
+            holder.ibLLi = (ImageView) convertView.findViewById(R.id.imageButtonLLI);
 
             convertView.setTag(holder);
         }
@@ -58,10 +60,11 @@ public class FavoritesLocationAdapter extends BaseAdapter{
             holder = (ViewHolder) convertView.getTag();
         }
         String location = arrayListLocation.get(position);
-        if (location.equals("")){
-
+        if (arrayListLocation.get(0).equals("")){
+            holder.ibLLi.setVisibility(View.INVISIBLE);
         }
         else
+            holder.ibLLi.setVisibility(View.VISIBLE);
         holder.tvLocation.setText(location);
 
         return convertView;
@@ -69,5 +72,6 @@ public class FavoritesLocationAdapter extends BaseAdapter{
 
     private static class ViewHolder {
         TextView tvLocation;
+        ImageView ibLLi;
     }
 }

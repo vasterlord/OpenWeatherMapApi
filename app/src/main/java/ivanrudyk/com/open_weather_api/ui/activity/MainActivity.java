@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -113,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private Dialog d;
     private FirebaseHelper firebaseHelper = new FirebaseHelper();
     private CallbackManager mCallbackManager;
+    FloatingActionButton fabAdd;
     //-------------------------------------------------------------------------------------------------------------------
     private static String BASE_DAILY_FORECAST_URL_CITY = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&q=%s&units=metric&APPId=%s";
     private static String BASE_DAILY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
@@ -173,8 +175,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private TextView currentTemperatureField;
     private TextView descriptonField;
     private ImageView iconView;
-    private ImageView mRefreshImageView;
-    private ProgressBar mProgressBar;
     private TextView mEmptyTextView;
     private Handler handler;
     public Forecast mForecast = new Forecast();
@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     private final FavoriteLocationWeatherFragment favoriteLocationWeatherFragment = new FavoriteLocationWeatherFragment();
     HeadActivityTask mt;
     private Boolean stopResult = false;
+    private CurrentlyWeather currentlyWeather;
     int result;
     private static final int PERMISSION_REQUEST_CODE = 1;
 
@@ -223,6 +224,14 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         carentLOcationRefresh(locationManager);
     }
 
+    @Override
+    public void openSetingsActivity(ModelUser user, String uid) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra("settings_intent1", users.getUserName());
+        intent.putExtra(uid, "settings_intent2");
+        startActivity(intent);
+    }
+
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public class HeadActivityTask extends AsyncTask<Void, Void, Void> {
 
@@ -246,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
             super.onPostExecute(result);
             if (!stopResult) {
                 ViewPager();
+                questionOnSity();
             }
         }
     }
@@ -366,7 +376,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                                 ForecastTransction.setForecast(getObject(getApplicationContext()));
                             } else {
                                 mForecast = getObject(getApplicationContext());
-                                updateDisplay();
+                                // updateDisplay();
                                 ForecastTransction.setForecast(mForecast);
                                 HeadActivityTask headActivityTask2 = new HeadActivityTask();
                                 headActivityTask2.execute();
@@ -383,11 +393,12 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         }.start();
         HeadActivityTask headActivityTask = new HeadActivityTask();
         headActivityTask.execute();
+
     }
 
     protected void updateDisplay() {
         mEmptyTextView.setVisibility(View.INVISIBLE);
-        CurrentlyWeather currentlyWeather = mForecast.getCurrent();
+        currentlyWeather = mForecast.getCurrent();
         cityField.setText(currentlyWeather.mLocationCurrentWeather.getCity().toUpperCase(Locale.US) +
                 ", " +
                 currentlyWeather.mLocationCurrentWeather.getCountry().toUpperCase(Locale.US));
@@ -460,9 +471,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     //-------------------------------------------------------------------------------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------
     private void inithializeComponent() {
-        mRefreshImageView = (ImageView) findViewById(R.id.refreshImageView);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mProgressBar.setVisibility(View.INVISIBLE);
         cityField = (TextView) findViewById(R.id.city_field);
         updatedField = (TextView) findViewById(R.id.updated_field);
         detailsField = (TextView) findViewById(R.id.details_field);
@@ -470,7 +478,40 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         descriptonField = (TextView) findViewById(R.id.decription_field);
         iconView = (ImageView) findViewById(R.id.icon_Image);
         ibLogin = (ImageButton) findViewById(R.id.ibLogin);
+        fabAdd = (FloatingActionButton) findViewById((R.id.fab));
+        fabAdd.setVisibility(View.INVISIBLE);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAddLocDialog();
+            }
+        });
     }
+
+
+    private void showAddLocDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Add to favorite");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (users.getUserName() != null && uid != null) {
+                    FavoriteLocationWeather.listLocation.add(currentlyWeather.mLocationCurrentWeather.getCity());
+                    firebaseHelper.addDataLocation(users.getUserName(), uid, currentlyWeather.mLocationCurrentWeather.getCity());
+                    onCreareToolBar();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        builder.show();
+    }
+
 
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
     @Override
@@ -519,7 +560,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         ibLogin.setOnClickListener(this);
         mCallbackManager = new CallbackManager.Factory().create();
-        mRefreshImageView.setOnClickListener(this);
         InitializeDialog();
         progressBar = (ProgressBar) d.findViewById(R.id.progressBarLogin);
         LoginProgress loginProgress = new LoginProgress();
@@ -529,11 +569,8 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
 //-------------------------------------------------------------------------------------------------------------------
 
-        mRefreshImageView = (ImageView) findViewById(R.id.refreshImageView);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-        mProgressBar.setVisibility(View.INVISIBLE);
         cityField = (TextView) findViewById(R.id.city_field);
         updatedField = (TextView) findViewById(R.id.updated_field);
         detailsField = (TextView) findViewById(R.id.details_field);
@@ -542,7 +579,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         iconView = (ImageView) findViewById(R.id.icon_Image);
         mEmptyTextView = (TextView) findViewById(R.id.tvEmpty);
         mEmptyTextView.setVisibility(View.INVISIBLE);
-        mRefreshImageView.setVisibility(View.VISIBLE);
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
         viewPager = (ViewPager) findViewById(R.id.pager);
         locationManager = (LocationManager) getApplication()
@@ -660,9 +696,17 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        stopResult = false;
+        ViewPager();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         stopResult = true;
+        progressBar.setVisibility(View.INVISIBLE);
         RealmDbHelper dbHelper = new RealmDbHelper();
         ModelUser u = new ModelUser();
         u = dbHelper.retriveUserFromRealm(this);
@@ -724,6 +768,20 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         Log.e(TAG, "FirebaseHelper.modelUser size = " + FirebaseHelper.modelUser.getLocation().getLocation().size());
         Log.e(TAG, "FavoriteLocationWeather.listLocation size = " + FavoriteLocationWeather.listLocation.size());
 
+        questionOnSity();
+    }
+
+    private void questionOnSity() {
+        if(currentlyWeather!=null) {
+            for (int i = 0; i < FavoriteLocationWeather.listLocation.size(); i++) {
+                if (FavoriteLocationWeather.listLocation.get(i).equals(currentlyWeather.mLocationCurrentWeather.getCity())) {
+                    fabAdd.setVisibility(View.INVISIBLE);
+                    break;
+                } else {
+                    fabAdd.setVisibility(View.VISIBLE);
+                }
+            }
+        }
     }
 
     private void onCreateNavigationDraver() {
@@ -756,15 +814,15 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                     updateWeatherData(city, coord[0], coord[1], nowURL);
                     new CityPreference(this).setLat(coord[0]);
                     new CityPreference(this).setLon(coord[1]);
-                    //  headActivityTask2.execute();
+                    headActivityTask2.execute();
                 } else if ((nowURL == BASE_CURRENT_WEATHER_URL_CITY)) {
                     updateWeatherData(city, coord[0], coord[1], nowURL);
-                    // headActivityTask2.execute();
+                    headActivityTask2.execute();
                 }
             }
         } else if (item.getItemId() == R.id.settings) {
-//           Intent intent = new Intent(this, MySettingsActivity.class);
-//           startActivity(intent);
+            Intent intent = new Intent(this, MySettingsActivity.class);
+            startActivity(intent);
         }
         return false;
     }
@@ -883,6 +941,7 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
                 userQuit.setLocation(locationQuit);
                 users = userQuit;
                 mAuth.signOut();
+                FavoriteLocationWeather.listLocation.clear();
                 LoginManager.getInstance().logOut();
                 dbHelper.deleteUserFromRealm(getApplication());
                 onCreareToolBar();
@@ -951,10 +1010,9 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
         this.users.setLocation(FirebaseHelper.modelLocation);
         etLogin.setText("");
         etPassword.setText("");
-        mProgressBar.setVisibility(View.INVISIBLE);
         ibLogin.setImageDrawable(getResources().getDrawable(R.drawable.ic_lock_outline_white_24dp));
-        //onCreareToolBar();
-        //onCreateNavigationDraver();
+        onCreareToolBar();
+        onCreateNavigationDraver();
     }
 
     @Override
@@ -1020,7 +1078,6 @@ public class MainActivity extends AppCompatActivity implements MainView, Navigat
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            mProgressBar.setVisibility(View.INVISIBLE);
             super.onPostExecute(aVoid);
             if (mAuth.getCurrentUser() != null) {
                 users = FirebaseHelper.modelUser;

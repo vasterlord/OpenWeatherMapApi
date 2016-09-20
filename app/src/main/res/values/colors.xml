@@ -12,4 +12,5 @@
     <color name="cloudy">#95c6f0</color>
     <color name="snowy">#fffafa</color>
     <color name="empty">#6ece45</color>
+    <color name="colorTitle">#f0faf7</color>
 </resources>

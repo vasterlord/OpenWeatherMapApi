@@ -13,31 +13,54 @@
     tools:showIn="@layout/activity_my_settings"
     android:background="@color/about_libraries_title_openSource_dark">
 
-    <TextView
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/switchGPS"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Location permit"
-        android:id="@+id/textView5"
-        android:textColor="#000000"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="116dp" />
+        android:checked="false"
+        android:textOff="OFF"
+        android:textOn="ON"
+        app:showText="true"
+        android:layout_alignBaseline="@+id/textView11"
+        android:layout_alignBottom="@+id/textView11"
+        android:layout_alignLeft="@+id/switchNetwork"
+        android:layout_alignStart="@+id/switchNetwork" />
 
-    <Switch
+    <TextView
+        android:text="Turn on/off Wifi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/switch1"
-        android:layout_alignBottom="@+id/textView5"
+        android:id="@+id/textView8"
+        android:textColor="@android:color/background_dark"
+        android:textSize="18sp"
+        android:layout_alignBottom="@+id/imageView3"
+        android:layout_toRightOf="@+id/imageView3"
+        android:layout_toEndOf="@+id/imageView3"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/switchNetwork"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:checked="false"
+        android:textOff="OFF"
+        android:textOn="ON"
+        app:showText="true"
+        android:layout_alignTop="@+id/textView8"
+        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <ImageView
+    <TextView
+        android:text="Turn on/off GPS"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:layout_alignBottom="@+id/textView5"
-        android:layout_alignTop="@+id/textView5"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="34dp"
-        android:src="@drawable/abc_text_select_handle_middle_mtrl_light" />
+        android:id="@+id/textView11"
+        android:textColor="@android:color/background_dark"
+        android:textSize="18sp"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/switchNetwork"
+        android:layout_alignStart="@+id/textView8" />
 </RelativeLayout>

@@ -43,6 +43,7 @@ import ivanrudyk.com.open_weather_api.helpers.Helper;
 import ivanrudyk.com.open_weather_api.helpers.JSONWeatherParser;
 import ivanrudyk.com.open_weather_api.helpers.RemoteFetch;
 import ivanrudyk.com.open_weather_api.model.CurrentlyWeather;
+import ivanrudyk.com.open_weather_api.model.FavoriteLocationWeather;
 import ivanrudyk.com.open_weather_api.model.Forecast;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -53,8 +54,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Handler handlerMaps;
     private Forecast mForecastMaps = new Forecast();
     private String BASE_CURRENT_WEATHER_URL_COORD = "http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&units=metric&APPId=%s";
-    private String BASE_DAILY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/daily?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
-    private String BASE_HOURLY_FORECAST_URL_COORD = "http://api.openweathermap.org/data/2.5/forecast/hourly?mode=json&lat=%s&lon=%s&units=metric&APPId=%s";
     private final int DIALOG = 1;
     double latitude;
     double longitude;
@@ -90,7 +89,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = getIntent();
         uid = intent.getStringExtra("fnameMaps1");
         userName = intent.getStringExtra("fnameMaps2");
-
     }
 
     @Override
@@ -162,6 +160,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void addLocationToFirebase() {
         if (uid != null && userName != null){
+            FavoriteLocationWeather.listLocation.add(currentlyWeather.mLocationCurrentWeather.getCity());
             firebaseHelper.addDataLocation(userName, uid, currentlyWeather.mLocationCurrentWeather.getCity());
         }
         else {
@@ -212,8 +211,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     String apiKey = "ddec71381c5621cdddefb5c58581e5bc";
                     try {
                         forecastUrl[0] = RemoteFetch.getCurrent(getApplicationContext(), (new URL(String.format(BASE_CURRENT_WEATHER_URL_COORD, tempLat, tempLon, apiKey))));
-                        forecastUrl[1] = RemoteFetch.getDaily(getApplicationContext(), (new URL(String.format(BASE_DAILY_FORECAST_URL_COORD, tempLat, tempLon, apiKey))));
-                        forecastUrl[2] = RemoteFetch.getHourly(getApplicationContext(), (new URL(String.format(BASE_HOURLY_FORECAST_URL_COORD, tempLat, tempLon, apiKey))));
                     } catch (MalformedURLException e) {
                         e.printStackTrace();
                     }
@@ -237,19 +234,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     e.printStackTrace();
                                 }
 
-                                try {
-                                    mForecastMaps.setDailyForecast(JSONWeatherParser.getDailyForecast(forecastUrl[1]));
-                                    Log.e("DAYYYYYY", forecastUrl[1]);
-
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                try {
-                                    mForecastMaps.setHourlyForecast(JSONWeatherParser.getHourlyForecast(forecastUrl[2]));
-                                    Log.e("HOURRRRR", forecastUrl[2]);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {

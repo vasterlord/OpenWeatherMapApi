@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -46,6 +47,8 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
         void eventChangeSity();
 
         void eventCarentLocation();
+
+        void openSetingsActivity(ModelUser user, String uid);
     }
 
     private onSomeEventListenerDraver someEventListener;
@@ -75,7 +78,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     private ProgressBar prBarDeleteDialogProgBar;
     private Button bOkDeleteLoc;
     private Button bCanselDeleteLoc;
-
+    private LinearLayout linearLayoutSettings;
     String uid;
     private FavoritesLocationAdapter locationAdapter;
 
@@ -119,7 +122,14 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
         return v;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mUserLearndDrawer = Boolean.valueOf((readFromPreferenses(getActivity(), KEY_USER_LEARNED_DRAWER, "false")));
+    }
+
     private void initializeFragment(View v) {
+        mUserLearndDrawer = Boolean.valueOf((readFromPreferenses(getActivity(), KEY_USER_LEARNED_DRAWER, "false")));
         ivPhotoUser = (ImageView) v.findViewById(R.id.ivPhotoUser);
         tvNavUserName = (TextView) v.findViewById(R.id.tvDrUserName);
         tvNavLogin = (TextView) v.findViewById(R.id.tvDrLogin);
@@ -129,6 +139,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
         linearLayoutAddLoc = (LinearLayout) v.findViewById(R.id.linLayoutAddLoc);
         linearLayoutCarentLocation = (LinearLayout) v.findViewById(R.id.linearLayoutCarentLoc);
         linearLayoutChangeCity = (LinearLayout) v.findViewById(R.id.linearLayoutChangeCity);
+        linearLayoutSettings = (LinearLayout) v.findViewById(R.id.llSettings);
         draverPresenter = new NavigationDraverPresenterImplement(this);
         linearLayoutAddLoc.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,6 +180,14 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
                 someEventListener.eventChangeSity();
             }
         });
+        linearLayoutSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(users != null) {
+                    someEventListener.openSetingsActivity(users, uid);
+                }
+            }
+        });
         arrayAdapter();
     }
 
@@ -198,20 +217,19 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
     }
 
     public void arrayAdapter() {
-        locationAdapter = new FavoritesLocationAdapter(getActivity(), users.getLocation().getLocation());
-        if (FavoriteLocationWeather.listLocation!=null && FavoriteLocationWeather.listLocation.size()>0) {
-            String temp = FavoriteLocationWeather.listLocation.get(0);
+            locationAdapter = new FavoritesLocationAdapter(getActivity(), FavoriteLocationWeather.listLocation);
+            if (FavoriteLocationWeather.listLocation != null && FavoriteLocationWeather.listLocation.size() > 0) {
+                String temp = FavoriteLocationWeather.listLocation.get(0);
                 lvLocation.setAdapter(locationAdapter);
-        }
-
-        lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-                Log.e("LOG: ", "City = "+ FavoriteLocationWeather.listLocation.get(position));
-                deleteDialogOpen(users, uid, position);
-//                draverPresenter.deleteLocation(users, uid, position);
             }
-        });
+
+            lvLocation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+                    Log.e("LOG: ", "City = " + FavoriteLocationWeather.listLocation.get(position));
+                    deleteDialogOpen(users, uid, position);
+                }
+            });
     }
 
     public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolBar, ModelUser users, String uid) {
@@ -233,7 +251,7 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
                 super.onDrawerOpened(drawerView);
                 if (!mUserLearndDrawer) {
                     mUserLearndDrawer = true;
-                    //saveToPreferenses(getActivity(), KEY_USER_LEARNED_DRAWER, mUserLearndDrawer + "");
+                    saveToPreferenses(getActivity(), KEY_USER_LEARNED_DRAWER, mUserLearndDrawer + "");
                 }
                 getActivity().invalidateOptionsMenu();
             }
@@ -246,9 +264,6 @@ public class NavigationDraverFragment extends Fragment implements NavigationDrav
             }
         };
 
-//        if (!mUserLearndDrawer && !mFromSavedInstanseState) {
-//            mDrawerLayout.openDrawer(containerView);
-//        }
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerLayout.post(new Runnable() {
